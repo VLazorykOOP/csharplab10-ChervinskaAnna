@@ -46,126 +46,142 @@ namespace Lab10CSharp
                 case 2:
                     task2();
                     break;
-                case 5:
+                case 3:
                     break;
             }
         }
 
+public class InvalidColorException : Exception
+    {
+        public InvalidColorException() { }
+        public InvalidColorException(string message) : base(message) { }
+        public InvalidColorException(string message, Exception inner) : base(message, inner) { }
+    }
 
-        public class InvalidTriangleCastException : Exception
+    public class InvalidTriangleCastException : Exception
+    {
+        public InvalidTriangleCastException() { }
+        public InvalidTriangleCastException(string message) : base(message) { }
+        public InvalidTriangleCastException(string message, Exception inner) : base(message, inner) { }
+    }
+
+    public class ITriangle
+    {
+        protected int a, b;
+        protected int c;
+        public ITriangle(int Base, int side, int color)
         {
-            public InvalidTriangleCastException() { }
-            public InvalidTriangleCastException(string message) : base(message) { }
-            public InvalidTriangleCastException(string message, Exception inner) : base(message, inner) { }
+            a = Base;
+            b = side;
+            c = color;
         }
 
-        public class ITriangle
+        public void Print()
         {
-            protected int a, b;
-            protected int c;
-            public ITriangle(int Base, int side, int color)
-            {
-                a = Base;
-                b = side;
-                c = color;
-            }
-
-            public void Print()
-            {
-                Console.WriteLine($"Base: {a}");
-                Console.WriteLine($"side: {b}");
-            }
-            public float P()
-            {
-                return a + b * 2;
-            }
-
-            public float S()
-            {
-                double p = P() / 2.0;
-                float square = (float)Math.Sqrt(p * (p - a) * (p - a) * (p - b));
-                if (float.IsNaN(square))
-                {
-                    throw new InvalidTriangleCastException("Invalid triangle parameters: sides are not compatible for triangle construction.");
-                }
-                return square;
-            }
-
-            public bool EquilateralTriangle()
-            {
-                return a == b;
-            }
-
-            public int Side
-            {
-                get { return b; }
-                set { b = value; }
-            }
-            public int Base
-            {
-                get { return a; }
-                set { a = value; }
-            }
-
-            public int Color
-            {
-                get { return c; }
-            }
+            Console.WriteLine($"Base: {a}");
+            Console.WriteLine($"side: {b}");
+        }
+        public float P()
+        {
+            return a + b * 2;
         }
 
-
-        public class DerivedTriangle : ITriangle
+        public float S()
         {
-            public DerivedTriangle(int Base, int side, int color) : base(Base, side, color)
+            double p = P() / 2.0;
+            float square = (float)Math.Sqrt(p * (p - a) * (p - a) * (p - b));
+            if (float.IsNaN(square))
             {
-                try
-                {
-                    object test = (object)this;
-                }
-                catch (InvalidCastException ex)
-                {
-                    Console.WriteLine($"Invalid Cast: {ex.Message}");
-                }
+                throw new InvalidTriangleCastException("Invalid triangle parameters: sides are not compatible for triangle construction.");
             }
+            return square;
         }
 
-
-        static void task1()
+        public bool EquilateralTriangle()
         {
-            Console.WriteLine("Task 1");
-            List<ITriangle> triangles = new List<ITriangle>();
-            triangles.Add(new ITriangle(3, 5, 6));
-            triangles.Add(new ITriangle(4, 4, 4));
-            triangles.Add(new ITriangle(2, 7, 9));
-            triangles.Add(new ITriangle(8, 8, 1));
-            triangles.Add(new ITriangle(1, 1, 1));
-            foreach (var t in triangles)
-            {
-                try
-                {
-                    Console.WriteLine();
-                    t.Print();
-                    Console.WriteLine($"P = {t.P()}");
-                    Console.WriteLine($"S = {t.S()}");
-                    Console.WriteLine($"Equilateral triangle? = {t.EquilateralTriangle()}");
-                }
-                catch (InvalidTriangleCastException ex)
-                {
-                    Console.WriteLine($"Invalid Triangle: {ex.Message}");
-                }
-                catch (InvalidCastException ex)
-                {
-                    Console.WriteLine($"Invalid Cast: {ex.Message}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"An unexpected error occurred: {ex.Message}");
-                }
-            }
+            return a == b;
         }
 
+        public int Side
+        {
+            get { return b; }
+            set { b = value; }
+        }
+        public int Base
+        {
+            get { return a; }
+            set { a = value; }
+        }
 
-        public delegate void EventHandle(object sender, ConveyorEventArgs e);
+        public int Color
+        {
+            get { return c; }
+        }
+    }
+
+
+    public class DerivedTriangle : ITriangle
+    {
+        public DerivedTriangle(int Base, int side, int color) : base(Base, side, color)
+        {
+            try
+            {
+                object test = (object)this;
+            }
+            catch (InvalidCastException ex)
+            {
+                Console.WriteLine($"Invalid Cast: {ex.Message}");
+            }
+        }
+    }
+
+
+    static void task1()
+    {
+        Console.WriteLine("Task 1");
+        List<ITriangle> triangles = new List<ITriangle>();
+        triangles.Add(new ITriangle(3, -5, 6));
+        triangles.Add(new ITriangle(4, 4, 4));
+        triangles.Add(new ITriangle(-2, 7, 9));
+        triangles.Add(new ITriangle(8, 8, 1));
+        triangles.Add(new ITriangle(1, 1, -1));
+        foreach (var t in triangles)
+        {
+            try
+            {
+                Console.WriteLine();
+                t.Print();
+                Console.WriteLine($"P = {t.P()}");
+                Console.WriteLine($"S = {t.S()}");
+                Console.WriteLine($"Equilateral triangle? = {t.EquilateralTriangle()}");
+
+                if (t.Color < 0 || t.Color > 255)
+                {
+                    throw new InvalidColorException("Invalid color value: it must be in the range of 0 to 255.");
+                }
+            }
+            catch (InvalidTriangleCastException ex)
+            {
+                Console.WriteLine($"Invalid Triangle: {ex.Message}");
+            }
+            catch (InvalidCastException ex)
+            {
+                Console.WriteLine($"Invalid Cast: {ex.Message}");
+            }
+            catch (InvalidColorException ex)
+            {
+                Console.WriteLine($"Invalid Color: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            }
+        }
+    }
+
+
+
+    public delegate void EventHandle(object sender, ConveyorEventArgs e);
 
         public class Conveyor
         {
@@ -261,17 +277,16 @@ namespace Lab10CSharp
 
         static void task2()
         {
-            Conveyor conveyor = new Conveyor("Київ", 5);
+            Conveyor conveyor = new Conveyor("Chernivtsi", 5);
             conveyor.ConveyorEvent += HandleConveyorEvent;
 
-            conveyor.WorkOnConveyor(10); // Running the conveyor for 10 days
+            conveyor.WorkOnConveyor(10); 
         }
 
         static void HandleConveyorEvent(object sender, ConveyorEventArgs e)
         {
             Console.WriteLine($"Day {e.Day}: In {e.CityName}, {e.WorkersCount} workers processed {e.ProcessedItems} items. Consumed electricity: {e.ConsumedElectricity} kWh. Produced {e.DefectiveItems} defective items. {e.DamagedItems} items were damaged.");
 
-            // Выводим информацию о каждом работнике
             foreach (Employee employee in ((Conveyor)sender).Employees)
             {
                 Console.WriteLine($"Employee: {employee.Name}, Age: {employee.Age}");
