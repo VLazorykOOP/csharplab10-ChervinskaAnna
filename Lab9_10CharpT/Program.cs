@@ -4,12 +4,12 @@
 // Виконання  виконати в стилі багатозаданості :
 //   Lab9T2  lab9task2 = new Lab9T2; lab9task2.Run();
 // При бажанні можна створити багатозадачний режим виконання задач.
-
 using System;
 using System.Collections;
 using System.IO;
 using System.Text.RegularExpressions;
 using static System.Net.Mime.MediaTypeNames;
+using System.Collections.Generic;
 
 
 namespace Lab10CSharp
@@ -18,7 +18,7 @@ namespace Lab10CSharp
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Lab#8 ");
+            Console.WriteLine("Lab#9  or  Lab#10");
             Console.WriteLine("What task do you want?");
             Console.WriteLine("1. Task 1");
             Console.WriteLine("2. Task 2");
@@ -51,195 +51,231 @@ namespace Lab10CSharp
             }
         }
 
-    
+
+        public class InvalidTriangleCastException : Exception
+        {
+            public InvalidTriangleCastException() { }
+            public InvalidTriangleCastException(string message) : base(message) { }
+            public InvalidTriangleCastException(string message, Exception inner) : base(message, inner) { }
+        }
+
+        public class ITriangle
+        {
+            protected int a, b;
+            protected int c;
+            public ITriangle(int Base, int side, int color)
+            {
+                a = Base;
+                b = side;
+                c = color;
+            }
+
+            public void Print()
+            {
+                Console.WriteLine($"Base: {a}");
+                Console.WriteLine($"side: {b}");
+            }
+            public float P()
+            {
+                return a + b * 2;
+            }
+
+            public float S()
+            {
+                double p = P() / 2.0;
+                float square = (float)Math.Sqrt(p * (p - a) * (p - a) * (p - b));
+                if (float.IsNaN(square))
+                {
+                    throw new InvalidTriangleCastException("Invalid triangle parameters: sides are not compatible for triangle construction.");
+                }
+                return square;
+            }
+
+            public bool EquilateralTriangle()
+            {
+                return a == b;
+            }
+
+            public int Side
+            {
+                get { return b; }
+                set { b = value; }
+            }
+            public int Base
+            {
+                get { return a; }
+                set { a = value; }
+            }
+
+            public int Color
+            {
+                get { return c; }
+            }
+        }
+
+
+        public class DerivedTriangle : ITriangle
+        {
+            public DerivedTriangle(int Base, int side, int color) : base(Base, side, color)
+            {
+                try
+                {
+                    object test = (object)this;
+                }
+                catch (InvalidCastException ex)
+                {
+                    Console.WriteLine($"Invalid Cast: {ex.Message}");
+                }
+            }
+        }
+
 
         static void task1()
         {
-
-        }
-
-        public delegate void FireEventHandler(object sender, FireEventArgs e);
-
-        public class NewTown
-        {
-            //властивостi
-            string townname; //назва мiста
-            int buildings; //число будинкiв у мiстi
-            int days; //число днiв спостереження
-                      //мiськi служби
-            Police policeman;
-            Ambulance ambulanceman;
-            FireDetect fireman;
-            //подiї в мiстi
-            public event FireEventHandler Fire;
-            string[] resultservice; //результати дiй служб 
-                                    //моделювання випадкових подiй
-            private Random rnd = new Random();
-            //iмовiрнiсть пожежi в будинку в поточний день
-            double fireprobability;
-            /// <summary>
-            /// Конструктор мiста
-            /// Створює служби й включає спостереження
-            /// за подiями
-            /// </summary>
-            /// <param name="name">назва мiста</param>
-            /// <param name="buildings">число будинкiв</param>
-            /// <param name="days">число днiв спостереження</param>
-            public NewTown(string name, int buildings, int days)
+            Console.WriteLine("Task 1");
+            List<ITriangle> triangles = new List<ITriangle>();
+            triangles.Add(new ITriangle(3, 5, 6));
+            triangles.Add(new ITriangle(4, 4, 4));
+            triangles.Add(new ITriangle(2, 7, 9));
+            triangles.Add(new ITriangle(8, 8, 1));
+            triangles.Add(new ITriangle(1, 1, 1));
+            foreach (var t in triangles)
             {
-                townname = name;
-                this.buildings = buildings;
-                this.days = days;
-                fireprobability = 1e-3;
-                //Створення служб
-                policeman = new Police(this);
-                ambulanceman = new Ambulance(this);
-                fireman = new FireDetect(this);
-                //Пiдключення до спостереження за подiями
-                policeman.On();
-                ambulanceman.On();
-                fireman.On();
-            }
-            /// <summary>
-            /// Запалюється подiя.
-            /// По черзi викликаються оброблювачi подiї 
-            /// </summary>
-            /// <param name="e">
-            /// вхiднi й вихiднi аргументи подiї
-            /// </param>
-            protected virtual void OnFire(FireEventArgs e)
-            {
-                const string MESSAGE_FIRE =
-                "У мiстi {0} пожежа! Будинок {1}. День {2}-й";
-                Console.WriteLine(string.Format(MESSAGE_FIRE, townname,
-                e.Building, e.Day));
-                if (Fire != null)
+                try
                 {
-                    Delegate[] eventhandlers =
-                    Fire.GetInvocationList();
-                    resultservice = new string[eventhandlers.Length];
-                    int k = 0;
-                    foreach (FireEventHandler evhandler in
-                    eventhandlers)
-                    {
-                        evhandler(this, e);
-                        resultservice[k++] = e.Result;
-                    }
+                    Console.WriteLine();
+                    t.Print();
+                    Console.WriteLine($"P = {t.P()}");
+                    Console.WriteLine($"S = {t.S()}");
+                    Console.WriteLine($"Equilateral triangle? = {t.EquilateralTriangle()}");
+                }
+                catch (InvalidTriangleCastException ex)
+                {
+                    Console.WriteLine($"Invalid Triangle: {ex.Message}");
+                }
+                catch (InvalidCastException ex)
+                {
+                    Console.WriteLine($"Invalid Cast: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An unexpected error occurred: {ex.Message}");
                 }
             }
+        }
 
-            public void LifeOurTown()
+
+        public delegate void EventHandle(object sender, ConveyorEventArgs e);
+
+        public class Conveyor
+        {
+            string cityName;
+            int processedItems;
+            int consumedElectricity;
+            int defectiveItems;
+            int damagedItems;
+            public event EventHandle ConveyorEvent;
+
+            private Random rnd = new Random();
+            private List<Employee> employees;
+
+            public List<Employee> Employees { get { return employees; } }
+            public Conveyor(string city, int workers)
             {
-                const string OK =
-                "У мiстi {0} усi спокiйно! Пожеж не було.";
-                bool wasfire = false;
+                cityName = city;
+                employees = GenerateEmployees(workers);
+            }
+
+            private List<Employee> GenerateEmployees(int workerCount)
+            {
+                List<Employee> generatedEmployees = new List<Employee>();
+                for (int i = 0; i < workerCount; i++)
+                {
+                    string name = "Employee " + (i + 1);
+                    int age = rnd.Next(20, 60);
+                    generatedEmployees.Add(new Employee(name, age));
+                }
+                return generatedEmployees;
+            }
+
+            protected virtual void OnConveyorEvent(ConveyorEventArgs e)
+            {
+                ConveyorEvent?.Invoke(this, e);
+            }
+
+            public void WorkOnConveyor(int days)
+            {
                 for (int day = 1; day <= days; day++)
-                    for (int building = 1; building <= buildings; building++)
+                {
+                    processedItems = 0;
+                    consumedElectricity = 0;
+                    defectiveItems = 0;
+                    damagedItems = 0;
+
+                    foreach (Employee employee in employees)
                     {
-                        if (rnd.NextDouble() < fireprobability)
-                        {
-                            FireEventArgs e = new FireEventArgs(building, day);
-                            OnFire(e);
-                            wasfire = true;
-                            for (int i = 0; i < resultservice.Length; i++)
-                                Console.WriteLine(resultservice[i]);
-                        }
+                        processedItems += rnd.Next(50, 101); 
+                        consumedElectricity += rnd.Next(100, 501); 
+                        defectiveItems += rnd.Next(0, 11); 
+                        damagedItems += rnd.Next(0, 6);
                     }
-                if (!wasfire)
-                    Console.WriteLine(string.Format(OK, townname));
+
+                    OnConveyorEvent(new ConveyorEventArgs(cityName, processedItems, employees.Count, consumedElectricity, defectiveItems, damagedItems, day));
+                }
             }
         }
-        public abstract class Receiver
-        {
-            protected NewTown town;
-            protected Random rnd = new Random();
-            public Receiver(NewTown town)
-            { this.town = town; }
-            public void On()
-            {
-                town.Fire += new FireEventHandler(It_is_Fire);
-            }
-            public void Off()
-            {
-                town.Fire -= new FireEventHandler(It_is_Fire);
-            }
-            public abstract void It_is_Fire(object sender, FireEventArgs e);
-        }//class Receiver
-        public class Police : Receiver
-        {
-            public Police(NewTown town) : base(town) { }
-            public override void It_is_Fire(object sender, FireEventArgs e)
-            {
-                const string OK =
-                "Мiлiцiя знайшла винних!";
-                const string NOK =
-                "Мiлiцiя не знайшла винних! Наслiдок триває.";
-                if (rnd.Next(0, 10) > 6)
-                    e.Result = OK;
-                else e.Result = NOK;
-            }
-        }// class Police
-        public class FireDetect : Receiver
-        {
-            public FireDetect(NewTown town) : base(town) { }
-            public override void It_is_Fire(object sender, FireEventArgs e)
-            {
-                const string OK =
-                "Пожежнi згасили пожежу!";
-                const string NOK =
-                "Пожежа триває! Потрiбна допомога.";
-                if (rnd.Next(0, 10) > 4)
-                    e.Result = OK;
-                else e.Result = NOK;
-            }
-        }// class Firedetect
-        public class Ambulance : Receiver
-        {
-            public Ambulance(NewTown town) : base(town) { }
-            public override void It_is_Fire(object sender, FireEventArgs e)
-            {
-                const string OK =
-                "Швидка надала допомогу!";
-                const string NOK =
-                " Є постраждалi! Потрiбнi лiки.";
-                if (rnd.Next(0, 10) > 2)
-                    e.Result = OK;
-                else e.Result = NOK;
-            }
-        }// class Ambulance
-        /// <summary>
-        /// Клас, що задає вхiднi й вихiднi аргументи подiї
-        /// </summary>
-        public class FireEventArgs : EventArgs
-        {
-            int building;
-            int day;
-            string result;
-            //Доступ до вхiдних i вихiдних аргументiв
-            public int Building
-            { get { return building; } }
-            public int Day
-            { get { return day; } }
-            public string Result
-            {
-                get { return result; }
-                set { result = value; }
-            }
-            public FireEventArgs(int building, int day)
-            {
-                this.building = building; this.day = day;
-            }
-        }//class Fireeventargs
 
-        
-            static void task2()
+        public class Employee
+        {
+            public string Name { get; }
+            public int Age { get; }
+
+            public Employee(string name, int age)
             {
-                Console.WriteLine("Lab#9  or  Lab#10");
-                Console.WriteLine("Hello World!");
-                NewTown sometown = new NewTown("Канск", 20, 100);
-                sometown.LifeOurTown();
+                Name = name;
+                Age = age;
             }
-        
+        }
+
+        public class ConveyorEventArgs : EventArgs
+        {
+            public string CityName { get; }
+            public int ProcessedItems { get; }
+            public int WorkersCount { get; }
+            public int ConsumedElectricity { get; }
+            public int DefectiveItems { get; }
+            public int DamagedItems { get; }
+            public int Day { get; }
+
+            public ConveyorEventArgs(string city, int processed, int workers, int electricity, int defective, int damaged, int currentDay)
+            {
+                CityName = city;
+                ProcessedItems = processed;
+                WorkersCount = workers;
+                ConsumedElectricity = electricity;
+                DefectiveItems = defective;
+                DamagedItems = damaged;
+                Day = currentDay;
+            }
+        }
+
+        static void task2()
+        {
+            Conveyor conveyor = new Conveyor("Київ", 5);
+            conveyor.ConveyorEvent += HandleConveyorEvent;
+
+            conveyor.WorkOnConveyor(10); // Running the conveyor for 10 days
+        }
+
+        static void HandleConveyorEvent(object sender, ConveyorEventArgs e)
+        {
+            Console.WriteLine($"Day {e.Day}: In {e.CityName}, {e.WorkersCount} workers processed {e.ProcessedItems} items. Consumed electricity: {e.ConsumedElectricity} kWh. Produced {e.DefectiveItems} defective items. {e.DamagedItems} items were damaged.");
+
+            // Выводим информацию о каждом работнике
+            foreach (Employee employee in ((Conveyor)sender).Employees)
+            {
+                Console.WriteLine($"Employee: {employee.Name}, Age: {employee.Age}");
+            }
+        }
     }
-
 }
